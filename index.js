@@ -63,7 +63,7 @@ class Action {
         if (this.useMsbuild)
             tool = 'msbuild';
 
-        this._executeInProcess(`${tool} build -c Release ${this.projectFile}`)
+        this._executeInProcess(`$${tool} build -c Release ${this.projectFile}`)
 
         this._executeInProcess(`$dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
 
