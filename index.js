@@ -6,6 +6,7 @@ const os = require("os"),
 
 class Action {
     constructor() {
+        this.useMsbuild = process.env.USE_MSBUILD
         this.projectFile = process.env.INPUT_PROJECT_FILE_PATH
         this.packageName = process.env.INPUT_PACKAGE_NAME || process.env.PACKAGE_NAME
         this.versionFile = process.env.INPUT_VERSION_FILE_PATH || process.env.VERSION_FILE_PATH || this.projectFile
@@ -56,15 +57,20 @@ class Action {
         console.log(`NuGet Source: ${this.nugetSource}`)
 
         fs.readdirSync(".").filter(fn => /\.s?nupkg$/.test(fn)).forEach(fn => fs.unlinkSync(fn))
+        
+        var tool = 'dotnet';
+        
+        if (useMsbuild)
+            tool = 'msbuild';
 
-        this._executeInProcess(`dotnet build -c Release ${this.projectFile}`)
+        this._executeInProcess(`${tool} build -c Release ${this.projectFile}`)
 
-        this._executeInProcess(`dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
+        this._executeInProcess(`${tool} pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
 
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
 
-        const pushCmd = `dotnet nuget push *.nupkg -s ${this.nugetSource}/v3/index.json -k ${this.nugetKey} ${!this.includeSymbols ? "--no-symbols" : ""} --skip-duplicate`,
+        const pushCmd = `${tool} nuget push *.nupkg -s ${this.nugetSource}/v3/index.json -k ${this.nugetKey} ${!this.includeSymbols ? "--no-symbols" : ""} --skip-duplicate`,
             pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout
 
         console.log(pushOutput)
