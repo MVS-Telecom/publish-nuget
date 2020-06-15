@@ -6,7 +6,7 @@ const os = require("os"),
 
 class Action {
     constructor() {
-        this.useMsbuild = process.env.USE_MSBUILD
+        this.useMsbuild = JSON.parse(process.env.USE_MSBUILD)
         this.projectFile = process.env.INPUT_PROJECT_FILE_PATH
         this.packageName = process.env.INPUT_PACKAGE_NAME || process.env.PACKAGE_NAME
         this.versionFile = process.env.INPUT_VERSION_FILE_PATH || process.env.VERSION_FILE_PATH || this.projectFile
