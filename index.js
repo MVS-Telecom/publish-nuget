@@ -65,12 +65,12 @@ class Action {
 
         this._executeInProcess(`${tool} build -c Release ${this.projectFile}`)
 
-        this._executeInProcess(`${tool} pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
+        this._executeInProcess(`$dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
 
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
 
-        const pushCmd = `${tool} nuget push *.nupkg -s ${this.nugetSource}/v3/index.json -k ${this.nugetKey} ${!this.includeSymbols ? "--no-symbols" : ""} --skip-duplicate`,
+        const pushCmd = `$dotnet nuget push *.nupkg -s ${this.nugetSource}/v3/index.json -k ${this.nugetKey} ${!this.includeSymbols ? "--no-symbols" : ""} --skip-duplicate`,
             pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout
 
         console.log(pushOutput)
