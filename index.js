@@ -57,13 +57,11 @@ class Action {
         console.log(`NuGet Source: ${this.nugetSource}`)
 
         fs.readdirSync(".").filter(fn => /\.s?nupkg$/.test(fn)).forEach(fn => fs.unlinkSync(fn))
-        
-        var tool = 'dotnet';
-        
-        if (this.useMsbuild)
-            tool = 'msbuild';
 
-        this._executeInProcess(`$${tool} build -c Release ${this.projectFile}`)
+        if (this.useMsbuild)
+            this._executeInProcess(`$msbuild ${this.projectFile} /p:Configuration=Release`)
+        else 
+            this._executeInProcess(`$dotnet build -c Release ${this.projectFile}`)
 
         this._executeInProcess(`$dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
 
